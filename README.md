@@ -60,7 +60,6 @@ Unvalidated/Open Redirect (CWE-601)<br>
 Out-of-bounds Read (CWE-125)<br>
 Password in Configuration File (CWE-260)<br>
 Path Traversal (CWE-22)<br>
-Phishing (CAPEC-98)<br>
 Plaintext Storage of a Password (CWE-256)<br>
 Privacy Violation (CWE-359)<br>
 Privilege Escalation (CAPEC-233)<br>
