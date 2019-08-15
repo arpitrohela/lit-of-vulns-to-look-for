@@ -3,12 +3,8 @@ Vulns type collection to go through for each web application.
 
 Reflected File Download(RFD){json endpoint or json api}<br>
 Brute Force (CWE-307)<br>
-Buffer Over-read (CWE-126)<br>
-Buffer Under-read (CWE-127)<br>
-Buffer Underflow (CWE-124)<br>
 Business Logic Errors (CWE-840)<br>
 CRLF Injection (CWE-93)<br>
-Classic Buffer Overflow (CWE-120)<br>
 Cleartext Storage of Sensitive Information (CWE-312)<br>
 Cleartext Transmission of Sensitive Information (CWE-319)<br>
 Client-Side Enforcement of Server-Side Security (CWE-602)<br>
@@ -19,6 +15,7 @@ Cross-site Scripting (XSS) - DOM (CWE-79)<br>
 Cross-site Scripting (XSS) - Generic (CWE-79)<br>
 Cross-site Scripting (XSS) - Reflected (CWE-79)<br>
 Cross-site Scripting (XSS) - Stored (CWE-79)<br>
+Cross-site Scripting (XSS) - Mutation<br>
 Cryptographic Issues - Generic (CWE-310)<br>
 Denial of Service (CWE-400)<br>
 Deserialization of Untrusted Data (CWE-502)<br>
@@ -32,10 +29,7 @@ Improper Authentication - Generic (CWE-287)<br>
 Improper Certificate Validation (CWE-295)<br>
 Improper Following of a Certificate's Chain of Trust (CWE-296)<br>
 Improper Neutralization of HTTP Headers for Scripting Syntax (CWE-644)<br>
-Improper Null Termination (CWE-170)<br>
 Inadequate Encryption Strength (CWE-326)<br>
-Incorrect Calculation of Buffer Size (CWE-131)<br>
-Information Disclosure (CWE-200)<br>
 Information Exposure Through Debug Information (CWE-215)<br>
 Information Exposure Through Directory Listing (CWE-548)<br>
 Information Exposure Through an Error Message (CWE-209)<br>
@@ -43,14 +37,9 @@ Insecure Direct Object Reference (IDOR) (CWE-639)<br>
 Insecure Storage of Sensitive Information (CWE-922)<br>
 Insufficient Session Expiration (CWE-613)<br>
 Insufficiently Protected Credentials (CWE-522)<br>
-Integer Overflow (CWE-190)<br>
-Integer Underflow (CWE-191)<br>
 Key Exchange without Entity Authentication (CWE-322)<br>
 LDAP Injection (CWE-90)<br>
-Leftover Debug Code (Backdoor) (CWE-489)<br>
 Malware (CAPEC-549)<br>
-Man-in-the-Middle (CWE-300)<br>
-Memory Corruption - Generic (CWE-119)<br>
 Missing Encryption of Sensitive Data (CWE-311)<br>
 Missing Required Cryptographic Step (CWE-325)<br>
 NULL Pointer Dereference (CWE-476)<br>
