@@ -1,7 +1,7 @@
 # lit-of-vulns-to-look-for
 Vulns type collection to go through for each web application.
 
-Array Index Underflow (CWE-129)<br>
+Reflected File Download(RFD)<br>
 Brute Force (CWE-307)<br>
 Buffer Over-read (CWE-126)<br>
 Buffer Under-read (CWE-127)<br>
