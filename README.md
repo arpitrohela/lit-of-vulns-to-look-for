@@ -1,7 +1,7 @@
 # lit-of-vulns-to-look-for
 Vulns type collection to go through for each web application.
 
-Reflected File Download(RFD)<br>
+Reflected File Download(RFD){json endpoint or json api}<br>
 Brute Force (CWE-307)<br>
 Buffer Over-read (CWE-126)<br>
 Buffer Under-read (CWE-127)<br>
