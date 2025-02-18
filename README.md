@@ -1,4 +1,4 @@
-# lit-of-vulns-to-look-for
+# list-of-vulns-to-look-for
 Vulns type collection to go through for each web application.
 
 Reflected File Download(RFD){json endpoint or json api}<br>
