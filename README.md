@@ -2680,46 +2680,110 @@ Vulnerability checklist to go through for each web application.
 - CSRF via DNS Rebinding
 - CSRF Token Prediction
 
-## Modern Vulnerability Chains & Compositional Risks (2024-2026)
-Use these as defensive review paths: validate every handoff between browser, router, proxy, cache, identity provider, CI system, and any AI agent.
+## Vulnerability Chains & Compositional Risks
 
-### Browser, Route & Cache Chains
-- Client-Side Path Traversal -> Client-Side Request Forgery (a client-built same-origin request escapes its intended API prefix and reaches an authenticated endpoint)
-- Client-Side Path Traversal -> Open Redirect / Attacker-Controlled Response -> DOM XSS (a traversed route reaches a same-origin redirect or response that is later rendered by an unsafe DOM sink)
-- Client-Side Open Redirect -> DOM XSS / Client-Side CSRF / Sensitive Information Leakage (a controllable navigation target has more impact than phishing alone)
-- Path Confusion -> Web Cache Deception -> Authenticated Data Exposure (cache and origin route a static-looking URL differently, so personalized content is cached)
-- HTTP/2, H2C, or H2-to-H1 Desynchronization -> Persistent Backend Connection Poisoning -> Cache Poisoning / Credential Hijacking / Access-Control Bypass
-- Request Smuggling -> Web Cache Poisoning or Response Queue Desynchronization -> Cross-User Response Manipulation
-- Unkeyed Request Metadata -> Cached Redirect/HTML/Headers -> Stored-Like XSS, Phishing, or Cross-Tenant Content Mix-Up
+### Browser, Routing & Cache
+- Client-Side Path Traversal -> Client-Side Request Forgery
+- Client-Side Path Traversal -> Open Redirect -> DOM XSS
+- Client-Side Path Traversal -> Attacker-Controlled Response -> DOM XSS
+- Client-Side Open Redirect -> DOM XSS
+- Client-Side Open Redirect -> Client-Side CSRF
+- Client-Side Open Redirect -> Sensitive Information Leakage
+- DOM Clobbering -> DOM XSS
+- Client-Side Prototype Pollution -> DOM XSS
+- `postMessage` Origin/Source Validation Failure -> DOM XSS
+- XSS -> Service Worker Registration -> Persistent Client-Side Interception
+- Path Confusion -> Web Cache Deception -> Authenticated Data Exposure
+- Cache-Key Confusion -> Cross-Tenant Data Exposure
+- Stale Cache -> Revoked Authorization or Account-State Exposure
+- Unkeyed Request Metadata -> Web Cache Poisoning -> Stored-Like XSS
+- Unkeyed Request Metadata -> Web Cache Poisoning -> Phishing or Redirect Poisoning
+- CRLF Injection -> HTTP Response Splitting -> Web Cache Poisoning
+- HTTP/1.1 Request Smuggling -> Web Cache Poisoning
+- HTTP/1.1 Request Smuggling -> Response-Queue Desynchronization -> Cross-User Response Manipulation
+- HTTP/2, H2C, or H2-to-H1 Desynchronization -> Persistent Backend Connection Poisoning -> Credential Hijacking or Access-Control Bypass
+- CDN/Reverse-Proxy Rewrite Differential -> Authentication or Authorization Bypass
 - Subdomain Takeover -> Overly Broad CORS Trust -> Credentialed Cross-Origin Data Access
 - Subdomain Takeover -> Parent-Domain Cookie Tossing -> Session Fixation or Cookie Shadowing
+- CORS Origin Reflection -> Credentialed Cross-Origin Data Exposure
 - Host / Forwarded Header Trust -> Password-Reset Link or Absolute Redirect Poisoning -> Account Takeover or Token Leakage
 
-### OAuth, OIDC & Mobile Identity Chains
-- Open Redirect or Weak redirect_uri Validation -> Authorization Code / Access-Token Leakage -> Account Takeover
-- OAuth Mix-Up / Issuer Confusion -> Authorization Code or Token Sent to the Wrong Issuer -> Session Swap or Token Substitution
-- Missing PKCE, state, or nonce -> Intercepted / Forged Authorization Response -> Login CSRF, Code Exchange, or Session Takeover
-- Mobile Deep-Link or Universal-Link Collision -> Authorization-Code Interception -> Token Theft When PKCE Is Missing or Downgraded
-- postMessage Origin / Source Validation Failure -> OAuth Callback or Token Exposure -> Cross-Origin Account Compromise
-- JWT Audience / Issuer Confusion Across Tenants or Apps -> Token Reuse at a Different Resource Server -> Cross-Application Privilege Escalation
+### OAuth, OIDC, SAML & Session Chains
+- Open Redirect or Weak `redirect_uri` Validation -> Authorization Code or Access-Token Leakage -> Account Takeover
+- OAuth Mix-Up or Issuer Confusion -> Authorization Code or Token Substitution -> Session Swap
+- Missing PKCE -> Authorization-Code Interception -> Token Theft
+- Missing `state` -> Login CSRF or Session Swap
+- Missing OIDC `nonce` -> ID Token Replay -> Session Takeover
+- Mobile Deep-Link or Universal-Link Collision -> Authorization-Code Interception -> Token Theft
+- `postMessage` Origin/Source Validation Failure -> OAuth Callback or Token Exposure -> Cross-Origin Account Compromise
+- OAuth Callback Fragment or Referer Leakage -> Authorization-Code or Token Theft
+- OAuth Device Flow User-Code Reuse -> Session Swap or Account Takeover
+- JWT Audience/Issuer/Tenant Confusion -> Cross-Application Privilege Escalation
+- JWT Algorithm or Key Confusion -> Forged Token -> Account Takeover
+- SAML Assertion Wrapping or Incomplete Assertion Binding -> Wrong Subject or Service Provider Acceptance -> Account Takeover
+- SAML Audience/Recipient/ACS Validation Gap -> Assertion Replay at Another Service Provider -> Account Takeover
+- Account Linking or Email-Claim Confusion -> Attacker Identity Linked to Victim Account -> Account Takeover
+- Session Fixation -> Victim Authentication on Attacker-Chosen Session -> Account Takeover
+- Password-Reset Token Leakage -> Password Reset -> Account Takeover
+
+### Injection, Parsing & Server-Side Execution Chains
+- SQL Injection -> Authentication Bypass
+- SQL Injection -> Data Exfiltration -> Credential Reuse or Account Takeover
+- NoSQL Injection -> Authentication or Authorization Bypass
+- LDAP Injection -> Authentication or Authorization Bypass
+- HTTP Parameter Pollution -> Frontend/Backend Parameter Mismatch -> Authorization Bypass
+- HTTP Parameter Pollution -> WAF/Validator Bypass -> Injection
+- CRLF Injection -> Set-Cookie Injection -> Session Fixation
+- XXE -> Local File Read -> Secret or Credential Exposure
+- XXE -> SSRF -> Internal Service or Cloud Metadata Access
+- SSRF -> Internal Admin/API Access -> Privilege Escalation
+- SSRF -> Cloud Metadata Credentials -> Cloud Privilege Escalation
+- SSRF -> Redis, Queue, or Internal Service Access -> Remote Code Execution
+- Webhook or URL Fetcher -> DNS Rebinding or Redirect Bypass -> Internal API Access
+- LFI -> Log Poisoning -> Remote Code Execution
+- File Upload -> Local File Inclusion -> Remote Code Execution
+- File Upload or Content-Type Confusion -> Stored XSS -> Session or Token Theft
+- File Upload -> Parser/Converter Exploitation -> Remote Code Execution
+- Archive Traversal + Symlink/Hardlink Handling -> Arbitrary File Write -> Configuration Override or Code Execution
+- SSTI -> Remote Code Execution -> Secret or Cloud-Credential Exposure
+- Insecure Deserialization -> Gadget Chain -> Remote Code Execution
+- Server-Side Prototype Pollution -> Code Execution or Authorization Bypass
+- Command Injection -> Secret or Cloud-Credential Exposure -> Privilege Escalation
+
+### API, Authorization & Business-Logic Chains
+- BOLA/IDOR -> Cross-Tenant Data Exposure
+- BOLA/IDOR + Bulk, Batch, or GraphQL Resolver Access -> Cross-Tenant Data Exposure or Privilege Escalation at Scale
+- Mass Assignment or Client-Controlled Fields -> Role, Owner, Price, or Workflow-State Change -> Privilege Escalation or Fraud
+- GraphQL Federation/Gateway Trust Gap -> Downstream Resolver Authorization Bypass -> Cross-Service Data Exposure
+- GraphQL Introspection -> Sensitive Schema or Resolver Exposure -> Attack-Surface Expansion
+- WebSocket Origin/Auth Gap -> Cross-Site WebSocket Hijacking -> Authenticated Message Access
+- CORS Misconfiguration + CSRF -> Authenticated Cross-Origin State Change
+- CSRF -> MFA Disable, Email Change, Password Change, or Payment Action
+- Race Condition + Missing Idempotency -> Double Spend, Duplicate Action, or Workflow Bypass
+- Price, Quantity, or Coupon Manipulation -> Payment or Inventory Fraud
+- Password Reset or Account-Recovery Logic Flaw -> Account Takeover
+- File/Resource IDOR -> Private File or Object Storage Exposure
 
 ### Build, Dependency & Release Chains
-- Dependency Confusion / Typosquatting -> CI Dependency Installation -> Build Secret or Cloud Credential Exposure -> Release or Deployment Compromise
-- Untrusted Pull-Request Code or Artifact -> Privileged CI Workflow Executes It -> CI Secret Exfiltration -> Repository, Package, or Cloud Takeover
-- Compromised CI Action / Third-Party Build Step -> Artifact or Release Signing Manipulation -> Downstream Supply-Chain Compromise
-- Archive Traversal + Symlink/Hardlink Handling -> Arbitrary File Write -> Configuration Override or Code Execution During Build/Deploy
-
-### API, Content & Authorization Chains
-- BOLA/IDOR + Bulk, Batch, or GraphQL Resolver Access -> Cross-Tenant Data Exposure or Privilege Escalation at Scale
-- File Upload / Content-Type Confusion -> Stored Client-Side Content -> XSS -> Authenticated Session or Token Theft
-- Document, Image, or Media Processing -> SSRF / Internal Service Access -> Cloud Metadata Credential Exposure -> Cloud Privilege Escalation
+- Dependency Confusion or Typosquatting -> CI Dependency Installation -> Build-Secret or Cloud-Credential Exposure -> Release or Deployment Compromise
+- Malicious Package Postinstall/Build Script -> CI Code Execution -> Secret Exfiltration
+- Untrusted Pull-Request Code or Artifact -> Privileged CI Workflow Execution -> CI-Secret Exfiltration -> Repository, Package, or Cloud Takeover
+- Compromised CI Action or Third-Party Build Step -> Artifact or Release-Signing Manipulation -> Downstream Supply-Chain Compromise
+- Artifact Substitution -> Trusted Deployment Workflow -> Production Compromise
+- Compromised Package Registry or Mirror -> Dependency Substitution -> Build or Runtime Compromise
+- Source-Map or Build-Artifact Secret Exposure -> API/Cloud Credential Abuse
+- Archive Traversal During Build/Deploy -> Configuration Override or Code Execution
 
 ### AI Agent, MCP & Tool-Using Application Chains
-- Indirect Prompt Injection (web page, document, email, database record, or tool output) -> Agent Goal Hijack -> Excessively Privileged Tool Call -> Data Exfiltration or Unauthorized Change
-- Tool / MCP Description or Output Poisoning -> Agent Selects or Invokes a Misleading Tool -> Secret Exposure, Unauthorized Action, or Code Execution
-- Persisted Agent Memory / Context Poisoning -> Malicious Instruction Reappears in a Later Session -> Cross-User Data Exposure or Unauthorized Action
+- Direct Prompt Injection -> Agent Goal Hijack -> Unauthorized Tool Call
+- Indirect Prompt Injection -> Agent Goal Hijack -> Excessively Privileged Tool Call -> Data Exfiltration or Unauthorized Change
+- Tool or MCP Description Poisoning -> Misleading Tool Selection -> Secret Exposure or Unauthorized Action
+- Tool or MCP Output Poisoning -> Prompt Injection -> Unauthorized Tool Call or Code Execution
+- Persisted Agent Memory/Context Poisoning -> Later Privileged Session -> Cross-User Data Exposure or Unauthorized Action
 - Untrusted Agent Skill, Plugin, or Tool Supply Chain -> Privileged Agent Execution -> Workspace, Repository, or Connected-Service Compromise
-- Agent Identity / Scope Creep -> Prompt Injection or Tool Misuse -> Privilege Escalation Across Connected Systems
+- Agent Identity or Scope Creep -> Prompt Injection or Tool Misuse -> Privilege Escalation Across Connected Systems
+- Cross-Agent Delegation -> Confused Deputy -> Unauthorized Action Under a More-Privileged Identity
+- Untrusted Model Output -> Automated Code, Query, or Configuration Execution -> Injection or Deployment Compromise
 
 ## Out-of-Band Data Exfiltration
 - DNS Exfiltration
@@ -2732,4 +2796,3 @@ Use these as defensive review paths: validate every handoff between browser, rou
 - OS/container/host vulnerabilities: see [OS_specific.md](OS_specific.md)
 - AD/Kerberos/protocol vulnerabilities: see [Network.md](Network.md)
 - Cloud provider vulnerabilities: see [Cloud.md](Cloud.md)
-
